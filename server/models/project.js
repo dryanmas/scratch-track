@@ -16,6 +16,8 @@ Project.findById = function(id, cb) {
 };
 
 // returns all projects for a user and calls a callback
+//NOTE: this needs to be expanded once collabs and 
+//      public projects become a thing
 Project.findByUser = function (owner_id, cb) {
   return db('projects').select('*').where({owner_id: owner_id})
     .then(function(rows){

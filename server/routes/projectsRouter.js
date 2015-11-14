@@ -1,9 +1,31 @@
 var express = require('express');
 var router = express.Router();
+var User = require('../models/user.js');
+var Project = require('../models/project.js') 
 
 // Get all projects that can be accessed
 router.get('/', function (req, res) {
-  res.json({'success':true});
+  //grab username from session
+  //and finds user in db
+   User.findByUsername(req.session.passport.user)
+   .then(function(user){
+
+    //this needs to change once public projects and
+    //collabs become a thing 
+      Project.findByUser(user.id)
+      .then(function(projects){
+        //sends all projects
+        res.status(200).send(projects);
+      })
+      .catch(function(err){
+        console.log("Could not find projects for this user");
+        res.status(404).send();
+      })
+   })
+   .catch(function(err){
+    console.log("Could not find user");
+    res.status(404).send();
+   })
 });
 
 // Create new project
