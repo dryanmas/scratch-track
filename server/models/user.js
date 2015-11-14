@@ -9,13 +9,12 @@ User.all = function () {
   return db('users').select('*');
 };
 
-// finds a user by username and then calls the callback
-User.findByUsername = function(username, cb) {
+// finds a user by username 
+User.findByUsername = function(username) {
   return db('users').select('*').where({name: username}).limit(1)
     .then(function(rows) {
       if (!rows.length) return;
-      if (!cb) return rows[0];
-      return cb(null, rows[0]);
+      return rows[0];
     })
     .catch(function(err) {
       throw err;

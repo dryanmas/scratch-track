@@ -57,19 +57,60 @@ router.post('/', function (req, res) {
 // Get a project by id
 router.get('/:projectId', function (req, res) {
   var projectId = req.params.projectId;
-  res.json({'success':true,projectId:projectId});
+  //grab the project from db
+  Project.findById(projectId, req.session.passport.user)
+  .then(function(project){
+    res.status(200).send(project);
+  })
+  .catch(function(err){
+    console.log('could not find project');
+    res.status(404).send(err);
+  })
+
 });
 
 // Update a project using its id
 router.put('/:projectId', function (req, res) {
   var projectId = req.params.projectId;
-  res.json({'success':true,projectId:projectId});
+  //checks that project is authorized by user
+  Project.findById(projectId, req.session.passport.user)
+  .then(function(){
+    Project.update(projectId, req.body)
+    .then(function(){
+      //succesfully updated
+      res.status(200).send()
+    })
+    .catch(function(err){
+      console.log('could not update project');
+      res.status(400).send(err);
+    })
+  })
+  .catch(function(err){
+    console.log('could not find project');
+    res.status(404).send(err)
+  })
 });
 
 // Delete a project using its id
 router.delete('/:projectId', function (req, res) {
   var projectId = req.params.projectId;
-  res.json({'success':true,projectId:projectId});
+  //checks that project is authorized by user
+  Project.findById(projectId, req.session.passport.user)
+  .then(function(){
+    Project.del(projectId)
+    .then(function(){
+      //successfully deleted
+      res.status(200).send();
+    })
+    .catch(function(err){
+      console.log('could not delete project')
+      res.status(400).send(err);
+    })
+  })
+  .catch(function(err){
+    console.log('could not find project')
+    res.status(404).send(err);
+  })
 });
 
 // Get all recordings associated with a specific project
