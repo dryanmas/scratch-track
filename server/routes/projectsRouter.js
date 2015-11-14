@@ -5,8 +5,7 @@ var Project = require('../models/project.js')
 
 // Get all projects that can be accessed
 router.get('/', function (req, res) {
-  //grab username from session
-  //and finds user in db
+  //grabs username from session and finds user in db
    User.findByUsername(req.session.passport.user)
    .then(function(user){
 
@@ -19,18 +18,40 @@ router.get('/', function (req, res) {
       })
       .catch(function(err){
         console.log("Could not find projects for this user");
-        res.status(404).send();
+        res.status(404).send(err);
       })
    })
    .catch(function(err){
-    console.log("Could not find user");
-    res.status(404).send();
+      console.log("Could not find user");
+      res.status(404).send(err);
    })
 });
 
 // Create new project
 router.post('/', function (req, res) {
-  res.json({'success':true});
+  //grabs username from session and finds user in db
+  User.findByUsername(req.session.passport.user)
+  .then(function(user){
+    //the owner id does not match the session id
+    if (user.id !== req.body.owner_id){
+      console.log('unauthorized to post project');
+      res.status(401).send();
+    }
+    //creates a new project
+    Project.create(req.body)
+    .then(function(project){
+      res.status(201).send(project);
+    })
+    .catch(function(err){
+      console.log('Could not create project');
+      res.status(400).send(err);
+    })
+
+  })
+  .catch(function(err){
+    console.log("Could not find user");
+    res.status(404).send(err);
+  })
 });
 
 // Get a project by id
